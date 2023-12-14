@@ -18,7 +18,7 @@ variable "proxmox_host" {
 
 variable "hostname" {
   type        = string
-  default     = "seclab-docker"
+  default     = "hades-docker"
   description = "description"
 }
 
@@ -44,9 +44,9 @@ provider "proxmox" {
 resource "proxmox_vm_qemu" "seclab-docker" {
   cores       = 2
   memory      = 4096
-  name        = "Seclab-Docker"
+  name        = "hades-docker"
   target_node = var.proxmox_host
-  clone       = "seclab-ubuntu-22-04"
+  clone       = "template-ubuntu-22-04"
   full_clone  = false
   onboot      = true
   agent       = 1
@@ -74,8 +74,8 @@ resource "proxmox_vm_qemu" "seclab-docker" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo sed -i 's/seclab-ubuntu-22-04/${var.hostname}/g' /etc/hosts",
-      "sudo sed -i 's/seclab-ubuntu-22-04/${var.hostname}/g' /etc/hostname",
+      "sudo sed -i 's/hades-ubuntu-22-04/${var.hostname}/g' /etc/hosts",
+      "sudo sed -i 's/hades-ubuntu-22-04/${var.hostname}/g' /etc/hostname",
       "sudo mv /etc/netplan/00-installer-config.yaml /etc/netplan/00-installer-config.yaml.bak",
       "sudo mv /tmp/00-netplan.yaml /etc/netplan/00-netplan.yaml",
       "sudo hostname ${var.hostname}",
