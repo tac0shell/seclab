@@ -9,7 +9,7 @@ packer {
 
 variable "hostname" {
   type    = string
-  default = "seclab-ubuntu-server"
+  default = "hades-ubuntu-server"
 }
 
 variable "proxmox_node" {
@@ -18,10 +18,10 @@ variable "proxmox_node" {
 }
 
 locals {
-  username          = vault("/seclab/data/seclab/", "seclab_user")
-  password          = vault("/seclab/data/seclab/", "seclab_password")
-  proxmox_api_id    = vault("/seclab/data/seclab/", "proxmox_api_id")
-  proxmox_api_token = vault("/seclab/data/seclab/", "proxmox_api_token")
+  username          = vault("/hades/data/hades/", "hades_user")
+  password          = vault("/hades/data/hades/", "hades_password")
+  proxmox_api_id    = vault("/hades/data/hades/", "proxmox_api_id")
+  proxmox_api_token = vault("/hades/data/hades/", "proxmox_api_token")
 }
 
 
@@ -39,7 +39,7 @@ source "proxmox-iso" "seclab-ubuntu-server" {
   http_directory           = "http"
   cores                    = 2
   memory                   = 2048
-  vm_name                  = "seclab-ubuntu-22-04"
+  vm_name                  = "template-ubuntu-22-04"
   qemu_agent               = true
   template_description     = "Ubuntu 22.04 Server"
   insecure_skip_tls_verify = true
