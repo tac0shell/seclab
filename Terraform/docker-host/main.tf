@@ -12,7 +12,7 @@ terraform {
 
 variable "proxmox_host" {
   type        = string
-  default     = "proxmox"
+  default     = "riverstyx"
   description = "description"
 }
 
@@ -27,8 +27,8 @@ provider "vault" {
 }
 
 data "vault_kv_secret_v2" "seclab" {
-  mount = "seclab"
-  name  = "seclab"
+  mount = "hades"
+  name  = "hades"
 }
 
 provider "proxmox" {
@@ -53,8 +53,8 @@ resource "proxmox_vm_qemu" "seclab-docker" {
 
   connection {
     type     = "ssh"
-    user     = data.vault_kv_secret_v2.seclab.data.seclab_user
-    password = data.vault_kv_secret_v2.seclab.data.seclab_password
+    user     = data.vault_kv_secret_v2.seclab.data.hades_user
+    password = data.vault_kv_secret_v2.seclab.data.hades_password
     host     = self.default_ipv4_address
   }
 
