@@ -9,19 +9,19 @@ packer {
 
 variable "hostname" {
   type    = string
-  default = "seclab-win-ws"
+  default = "hades-win10-ws"
 }
 
 locals {
-  username          = vault("/seclab/data/seclab/", "seclab_user")
-  password          = vault("/seclab/data/seclab/", "seclab_windows_password")
-  proxmox_api_id    = vault("/seclab/data/seclab/", "proxmox_api_id")
-  proxmox_api_token = vault("/seclab/data/seclab/", "proxmox_api_token")
+  username          = vault("/hades/data/hades/", "hades_user")
+  password          = vault("/hades/data/hades/", "hades_windows_password")
+  proxmox_api_id    = vault("/hades/data/hades/", "proxmox_api_id")
+  proxmox_api_token = vault("/hades/data/hades/", "proxmox_api_token")
 }
 
 variable "proxmox_node" {
   type    = string
-  default = "proxmox"
+  default = "riverstyx"
 }
 
 source "proxmox-iso" "seclab-win-ws" {
@@ -39,19 +39,19 @@ source "proxmox-iso" "seclab-win-ws" {
   qemu_agent               = true
   cores                    = 2
   memory                   = 4096
-  vm_name                  = "seclab-win-ws"
+  vm_name                  = "hades-win10-ws"
   template_description     = "Base Seclab Windows Workstation"
   insecure_skip_tls_verify = true
 
   additional_iso_files {
     device       = "ide3"
     iso_file     = "local:iso/Autounattend-win-10-ws.iso"
-    iso_checksum = "sha256:2893ca8f6d1f420436b6c213fa618710e7689a67d4bf924263361f07cced3b34"
+    iso_checksum = "sha256:dc14c12b66caf3928b1021c6e63c62d8faf8a4f4255fc7b225ecb5f0799a42c8"
   }
   additional_iso_files {
     device       = "sata0"
     iso_file     = "local:iso/virtio.iso"
-    iso_checksum = "sha256:8a066741ef79d3fb66e536fb6f010ad91269364bd9b8c1ad7f2f5655caf8acd8"
+    iso_checksum = "sha256:ebd48258668f7f78e026ed276c28a9d19d83e020ffa080ad69910dc86bbcbcc6"
     unmount      = true
   }
 
