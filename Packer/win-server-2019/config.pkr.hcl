@@ -9,7 +9,7 @@ packer {
 
 variable "hostname" {
   type    = string
-  default = "seclab-win-server"
+  default = "hades-win2019-server"
 }
 
 variable "proxmox_node" {
@@ -19,10 +19,10 @@ variable "proxmox_node" {
 
 
 locals {
-  username          = vault("/seclab/data/seclab/", "seclab_user")
-  password          = vault("/seclab/data/seclab/", "seclab_windows_password")
-  proxmox_api_id    = vault("/seclab/data/seclab/", "proxmox_api_id")
-  proxmox_api_token = vault("/seclab/data/seclab/", "proxmox_api_token")
+  username          = vault("/hades/data/hades/", "hades_user")
+  password          = vault("/hades/data/hades/", "hades_windows_password")
+  proxmox_api_id    = vault("/hades/data/hades/", "proxmox_api_id")
+  proxmox_api_token = vault("/hades/data/hades/", "proxmox_api_token")
 }
 
 
@@ -31,8 +31,8 @@ source "proxmox-iso" "seclab-win-server" {
   node                     = "${var.proxmox_node}"
   username                 = "${local.proxmox_api_id}"
   token                    = "${local.proxmox_api_token}"
-  iso_file                 = "local:iso/Win-Server-2019.iso"
-  iso_checksum             = "sha256:549bca46c055157291be6c22a3aaaed8330e78ef4382c99ee82c896426a1cee1"
+  iso_file                 = "local:iso/win-server-2019.iso"
+  iso_checksum             = "sha256:6dae072e7f78f4ccab74a45341de0d6e2d45c39be25f1f5920a2ab4f51d7bcbb"
   insecure_skip_tls_verify = true
   communicator             = "ssh"
   ssh_username             = "${local.username}"
@@ -41,13 +41,13 @@ source "proxmox-iso" "seclab-win-server" {
   qemu_agent               = true
   cores                    = 2
   memory                   = 4096
-  vm_name                  = "seclab-win-server"
+  vm_name                  = "template-win2019-server"
   template_description     = "Base Seclab Windows Server"
 
   additional_iso_files {
     device       = "ide3"
     iso_file     = "local:iso/Autounattend-win-server-2019.iso"
-    iso_checksum = "sha256:bf44c536d84e62ae5b1d83eca44b4725644578ddeb11d55f78fe0f4e5849f196"
+    iso_checksum = "sha256:0f8d559c6af317db5d492be42fd0981127a4a05f335059c70fa1b3d23ee6c58a"
     unmount      = true
   }
 
