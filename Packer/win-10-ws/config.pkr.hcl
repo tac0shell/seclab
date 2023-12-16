@@ -29,7 +29,7 @@ source "proxmox-iso" "seclab-win-ws" {
   node         = "${var.proxmox_node}"
   username     = "${local.proxmox_api_id}"
   token        = "${local.proxmox_api_token}"
-  iso_file     = "local:iso/Win-10-Enterprise.iso"
+  iso_file     = "local:iso/win-10-enterprise.iso"
   iso_checksum = "sha256:ef7312733a9f5d7d51cfa04ac497671995674ca5e1058d5164d6028f0938d668"
   /*skip_export             = true*/
   communicator             = "ssh"
@@ -39,7 +39,7 @@ source "proxmox-iso" "seclab-win-ws" {
   qemu_agent               = true
   cores                    = 2
   memory                   = 4096
-  vm_name                  = "hades-win10-ws"
+  vm_name                  = "template-win10-ws"
   template_description     = "Base Seclab Windows Workstation"
   insecure_skip_tls_verify = true
 
