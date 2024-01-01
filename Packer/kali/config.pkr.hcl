@@ -9,19 +9,19 @@ packer {
 
 variable "hostname" {
   type    = string
-  default = "seclab-kali"
+  default = "hades-kali"
 }
 
 variable "proxmox_node" {
   type    = string
-  default = "proxmox"
+  default = "riverstyx"
 }
 
 locals {
-  username          = vault("/seclab/data/seclab/", "seclab_user")
-  password          = vault("/seclab/data/seclab/", "seclab_password")
-  proxmox_api_id    = vault("/seclab/data/seclab/", "proxmox_api_id")
-  proxmox_api_token = vault("/seclab/data/seclab/", "proxmox_api_token")
+  username          = vault("/hades/data/hades/", "hades_user")
+  password          = vault("/hades/data/hades/", "hades_password")
+  proxmox_api_id    = vault("/hades/data/hades/", "proxmox_api_id")
+  proxmox_api_token = vault("/hades/data/hades/", "proxmox_api_token")
 }
 
 
@@ -30,7 +30,7 @@ source "proxmox-iso" "seclab-kali" {
   node                     = "${var.proxmox_node}"
   username                 = "${local.proxmox_api_id}"
   token                    = "${local.proxmox_api_token}"
-  iso_file                 = "local:iso/kali.iso"
+  iso_file                 = "local:iso/kali-linux-2023.4-installer-amd64.iso"
   iso_checksum             = "sha256:0b0f5560c21bcc1ee2b1fef2d8e21dca99cc6efa938a47108bbba63bec499779"
   ssh_username             = "${local.username}"
   ssh_password             = "${local.password}"
@@ -39,7 +39,7 @@ source "proxmox-iso" "seclab-kali" {
   http_directory           = "http"
   cores                    = 4
   memory                   = 8192
-  vm_name                  = "seclab-kali"
+  vm_name                  = "template-kali"
   qemu_agent               = true
   template_description     = "Kali"
   insecure_skip_tls_verify = true
@@ -58,7 +58,7 @@ source "proxmox-iso" "seclab-kali" {
     "<esc><wait>",
     "/install.amd/vmlinuz noapic ",
     "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/kali.preseed ",
-    "hostname=seclab-kali ",
+    "hostname=hades-kali ",
     "auto=true ",
     "interface=auto ",
     "domain=vm ",
