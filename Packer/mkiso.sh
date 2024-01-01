@@ -8,9 +8,9 @@ read vault_login
 if [[ $vault_login == "y" ]]; then
 	vault login
 fi
-seclab_user=$(vault kv get -field=seclab_user seclab/seclab)
-windows_pw=$(vault kv get -field=seclab_windows_password seclab/seclab)
-windows_domain_pw=$(vault kv get -field=seclab_windows_domain_password seclab/seclab)
+seclab_user=$(vault kv get -field=hades_user hades/hades)
+windows_pw=$(vault kv get -field=hades_windows_password hades/hades)
+windows_domain_pw=$(vault kv get -field=hades_windows_domain_password hades/hades)
 echo "[+] Backing up Autounattend file"
 cp -R $1 $1.bak
 echo "[+] Injecting password"
