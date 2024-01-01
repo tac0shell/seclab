@@ -1,8 +1,7 @@
 terraform {
   required_providers {
     proxmox = {
-      source  = "Telmate/proxmox"
-      version = "2.9.13"
+      source  = "TheGameProfi/proxmox"
     }
     vault = {
       source  = "hashicorp/vault"
@@ -13,13 +12,13 @@ terraform {
 
 variable "proxmox_host" {
   type        = string
-  default     = "proxmox"
+  default     = "riverstyx"
   description = "description"
 }
 
 variable "hostname" {
   type        = string
-  default     = "seclab-ws"
+  default     = "hades-ws"
   description = "description"
 }
 
@@ -28,8 +27,8 @@ provider "vault" {
 }
 
 data "vault_kv_secret_v2" "seclab" {
-  mount = "seclab"
-  name  = "seclab"
+  mount = "hades"
+  name  = "hades"
 }
 
 provider "proxmox" {
@@ -45,9 +44,9 @@ provider "proxmox" {
 resource "proxmox_vm_qemu" "demo-ws" {
   cores       = 2
   memory      = 4096
-  name        = "WS-TF-Demo"
+  name        = "hades-win10-ws"
   target_node = var.proxmox_host
-  clone       = "seclab-win-ws"
+  clone       = "template-win10-ws"
   full_clone  = false
   agent       = 1
 
@@ -62,8 +61,8 @@ resource "proxmox_vm_qemu" "demo-ws" {
 
   connection {
     type            = "ssh"
-    user            = data.vault_kv_secret_v2.seclab.data.seclab_user
-    password        = data.vault_kv_secret_v2.seclab.data.seclab_windows_password
+    user            = data.vault_kv_secret_v2.seclab.data.hades_user
+    password        = data.vault_kv_secret_v2.seclab.data.hades_windows_password
     host            = self.default_ipv4_address
     target_platform = "windows"
   }
