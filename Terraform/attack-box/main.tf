@@ -12,13 +12,13 @@ terraform {
 
 variable "proxmox_host" {
   type        = string
-  default     = "proxmox"
+  default     = "riverstyx"
   description = "description"
 }
 
 variable "hostname" {
   type        = string
-  default     = "seclab-kali"
+  default     = "hades-kali"
   description = "description"
 }
 
@@ -27,8 +27,8 @@ provider "vault" {
 }
 
 data "vault_kv_secret_v2" "seclab" {
-  mount = "seclab"
-  name  = "seclab"
+  mount = "hades"
+  name  = "hades"
 }
 
 provider "proxmox" {
@@ -41,20 +41,20 @@ provider "proxmox" {
 }
 
 
-resource "proxmox_vm_qemu" "seclab-kali" {
+resource "proxmox_vm_qemu" "hades-kali" {
   cores       = 4
   memory      = 8192
-  name        = "Seclab-Kali"
+  name        = "hades-kali"
   target_node = var.proxmox_host
-  clone       = "seclab-kali"
+  clone       = "hades-kali"
   full_clone  = false
   onboot      = true
   agent       = 1
 
   connection {
     type     = "ssh"
-    user     = data.vault_kv_secret_v2.seclab.data.seclab_user
-    password = data.vault_kv_secret_v2.seclab.data.seclab_password
+    user     = data.vault_kv_secret_v2.seclab.data.hades_user
+    password = data.vault_kv_secret_v2.seclab.data.hades_password
     host     = self.default_ipv4_address
   }
 
@@ -73,7 +73,7 @@ resource "proxmox_vm_qemu" "seclab-kali" {
 }
 
 output "vm_ip" {
-  value       = proxmox_vm_qemu.seclab-kali.default_ipv4_address
+  value       = proxmox_vm_qemu.hades-kali.default_ipv4_address
   sensitive   = false
   description = "VM IP"
 }

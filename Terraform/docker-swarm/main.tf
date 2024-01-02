@@ -12,13 +12,13 @@ terraform {
 
 variable "proxmox_host" {
   type        = string
-  default     = "proxmox"
+  default     = "riverstyx"
   description = "description"
 }
 
 variable "hostname" {
   type        = string
-  default     = "seclab-docker-swarm-swarm"
+  default     = "hades-docker-swarm-main"
   description = "description"
 }
 
@@ -27,8 +27,8 @@ provider "vault" {
 }
 
 data "vault_kv_secret_v2" "seclab" {
-  mount = "seclab"
-  name  = "seclab"
+  mount = "hades"
+  name  = "hades"
 }
 
 provider "proxmox" {
@@ -44,17 +44,17 @@ provider "proxmox" {
 resource "proxmox_vm_qemu" "seclab-docker-swarm-main" {
   cores       = 2
   memory      = 4096
-  name        = "Docker-Demo-Main"
+  name        = "docker-main"
   target_node = var.proxmox_host
-  clone       = "seclab-ubuntu-22-04"
+  clone       = "template-ubuntu-22-04"
   full_clone  = false
   onboot      = true
   agent       = 1
 
   connection {
     type     = "ssh"
-    user     = data.vault_kv_secret_v2.seclab.data.seclab_user
-    password = data.vault_kv_secret_v2.seclab.data.seclab_password
+    user     = data.vault_kv_secret_v2.seclab.data.hades_user
+    password = data.vault_kv_secret_v2.seclab.data.hades_password
     host     = self.default_ipv4_address
   }
 
@@ -65,9 +65,9 @@ resource "proxmox_vm_qemu" "seclab-docker-swarm-main" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo sed -i 's/seclab-ubuntu-22-04/seclab-docker-swarm-main/g' /etc/hosts",
-      "sudo sed -i 's/seclab-ubuntu-22-04/seclab-docker-swarm-main/g' /etc/hostname",
-      "sudo hostname seclab-docker-swarm-main",
+      "sudo sed -i 's/hades-ubuntu-22-04/hades-docker-swarm-main/g' /etc/hosts",
+      "sudo sed -i 's/hades-ubuntu-22-04/hades-docker-swarm-main/g' /etc/hostname",
+      "sudo hostname hades-docker-swarm-main",
       "ip a s"
     ]
   }
@@ -78,17 +78,17 @@ resource "proxmox_vm_qemu" "seclab-docker-swarm-main" {
 resource "proxmox_vm_qemu" "seclab-docker-swarm-node" {
   cores       = 2
   memory      = 4096
-  name        = "Docker-Demo-Node"
+  name        = "Docker-Node"
   target_node = var.proxmox_host
-  clone       = "seclab-ubuntu-22-04"
+  clone       = "template-ubuntu-22-04"
   full_clone  = false
   onboot      = true
   agent       = 1
 
   connection {
     type     = "ssh"
-    user     = data.vault_kv_secret_v2.seclab.data.seclab_user
-    password = data.vault_kv_secret_v2.seclab.data.seclab_password
+    user     = data.vault_kv_secret_v2.seclab.data.hades_user
+    password = data.vault_kv_secret_v2.seclab.data.hades_password
     host     = self.default_ipv4_address
   }
 
@@ -105,9 +105,9 @@ resource "proxmox_vm_qemu" "seclab-docker-swarm-node" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo sed -i 's/seclab-ubuntu-22-04/seclab-docker-swarm-node/g' /etc/hosts",
-      "sudo sed -i 's/seclab-ubuntu-22-04/seclab-docker-swarm-node/g' /etc/hostname",
-      "sudo hostname seclab-docker-swarm-node",
+      "sudo sed -i 's/hades-ubuntu-22-04/hades-docker-swarm-node/g' /etc/hosts",
+      "sudo sed -i 's/hades-ubuntu-22-04/hades-docker-swarm-node/g' /etc/hostname",
+      "sudo hostname hades-docker-swarm-node",
       "ip a s"
     ]
   }

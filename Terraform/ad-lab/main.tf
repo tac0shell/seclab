@@ -15,13 +15,13 @@ provider "vault" {
 }
 
 data "vault_kv_secret_v2" "seclab" {
-  mount = "seclab"
-  name  = "seclab"
+  mount = "hades"
+  name  = "hades"
 }
 
 variable "proxmox_host" {
   type        = string
-  default     = "proxmox"
+  default     = "riverstyx"
   description = "proxmox node"
 }
 
