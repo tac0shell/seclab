@@ -12,13 +12,13 @@ terraform {
 
 variable "proxmox_host" {
   type        = string
-  default     = "proxmox"
+  default     = "riverstyx"
   description = "description"
 }
 
 variable "hostname" {
   type        = string
-  default     = "seclab-siem"
+  default     = "hades-siem"
   description = "description"
 }
 
@@ -27,8 +27,8 @@ provider "vault" {
 }
 
 data "vault_kv_secret_v2" "seclab" {
-  mount = "seclab"
-  name  = "seclab"
+  mount = "hades"
+  name  = "hades"
 }
 
 provider "proxmox" {
@@ -44,17 +44,17 @@ provider "proxmox" {
 resource "proxmox_vm_qemu" "seclab-siem" {
   cores       = 4
   memory      = 8192
-  name        = "Seclab-SIEM"
+  name        = "hades-siem"
   target_node = var.proxmox_host
-  clone       = "seclab-ubuntu-22-04"
+  clone       = "template-ubuntu-22-04"
   full_clone  = false
   onboot      = true
   agent       = 1
 
   connection {
     type     = "ssh"
-    user     = data.vault_kv_secret_v2.seclab.data.seclab_user
-    password = data.vault_kv_secret_v2.seclab.data.seclab_password
+    user     = data.vault_kv_secret_v2.seclab.data.hades_user
+    password = data.vault_kv_secret_v2.seclab.data.hades_password
     host     = self.default_ipv4_address
   }
 
@@ -77,8 +77,8 @@ resource "proxmox_vm_qemu" "seclab-siem" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo sed -i 's/seclab-ubuntu-22-04/${var.hostname}/g' /etc/hosts",
-      "sudo sed -i 's/seclab-ubuntu-22-04/${var.hostname}/g' /etc/hostname",
+      "sudo sed -i 's/hades-ubuntu-22-04/${var.hostname}/g' /etc/hosts",
+      "sudo sed -i 's/hades-ubuntu-22-04/${var.hostname}/g' /etc/hostname",
       "sudo mv /etc/netplan/00-installer-config.yaml /etc/netplan/00-installer-config.yaml.bak",
       "sudo mv /tmp/00-netplan.yaml /etc/netplan/00-netplan.yaml",
       "sudo hostname ${var.hostname}",
