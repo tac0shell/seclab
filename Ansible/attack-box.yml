@@ -1,6 +1,6 @@
 ---
 - name: Configure Attack Box
-  hosts: seclab-kali
+  hosts: hades-kali-2024.01
   roles:
     - rdp
     - attack-box
