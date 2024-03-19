@@ -26,7 +26,7 @@ provider "vault" {
 
 }
 
-data "vault_kv_secret_v2" "seclab" {
+data "vault_kv_secret_v2" "hades" {
   mount = "hades"
   name  = "hades"
 }
@@ -36,8 +36,8 @@ provider "proxmox" {
   pm_api_url          = "https://${var.proxmox_host}:8006/api2/json"
   pm_tls_insecure     = true
   pm_log_enable       = true
-  pm_api_token_id     = data.vault_kv_secret_v2.seclab.data.proxmox_api_id
-  pm_api_token_secret = data.vault_kv_secret_v2.seclab.data.proxmox_api_token
+  pm_api_token_id     = data.vault_kv_secret_v2.hades.data.proxmox_api_id
+  pm_api_token_secret = data.vault_kv_secret_v2.hades.data.proxmox_api_token
 }
 
 
@@ -61,8 +61,8 @@ resource "proxmox_vm_qemu" "demo-ws" {
 
   connection {
     type            = "ssh"
-    user            = data.vault_kv_secret_v2.seclab.data.hades_user
-    password        = data.vault_kv_secret_v2.seclab.data.hades_windows_password
+    user            = data.vault_kv_secret_v2.hades.data.hades_user
+    password        = data.vault_kv_secret_v2.hades.data.hades_windows_password
     host            = self.default_ipv4_address
     target_platform = "windows"
   }

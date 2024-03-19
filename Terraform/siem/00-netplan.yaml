@@ -3,7 +3,7 @@ network:
     ens18:
       dhcp4: false
       addresses:
-        - 192.168.99.2/24
+        - 192.168.99.4/24
       nameservers:
           addresses: [8.8.8.8, 8.8.4.4]
       routes:
@@ -13,7 +13,7 @@ network:
     ens19:
       dhcp4: true
       routes:
-        - to: 10.1.99.0/24
-          via: 10.1.99.1
+        - to: 10.1.1.0/24
+          via: 10.1.1.1
           metric: 100
   version: 2

@@ -25,7 +25,7 @@ locals {
 }
 
 
-source "proxmox-iso" "seclab-ubuntu-server" {
+source "proxmox-iso" "hades-ubuntu-server" {
   proxmox_url              = "https://${var.proxmox_node}:8006/api2/json"
   node                     = "${var.proxmox_node}"
   username                 = "${local.proxmox_api_id}"
@@ -49,7 +49,7 @@ source "proxmox-iso" "seclab-ubuntu-server" {
   }
   disks {
     disk_size    = "30G"
-    storage_pool = "local-lvm"
+    storage_pool = "proxmox-storage"
   }
   boot_wait = "10s"
   boot_command = [
@@ -76,5 +76,5 @@ source "proxmox-iso" "seclab-ubuntu-server" {
 }
 
 build {
-  sources = ["sources.proxmox-iso.seclab-ubuntu-server"]
+  sources = ["sources.proxmox-iso.hades-ubuntu-server"]
 }

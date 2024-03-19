@@ -6,9 +6,9 @@ read vault_login
 if [[ $vault_login == "y" ]]; then
 	vault login
 fi
-seclab_user=$(vault kv get -field=seclab_user seclab/seclab)
-seclab_pw=$(vault kv get -field=seclab_password seclab/seclab)
-seclab_ssh_key=$(vault kv get -field=seclab_ssh_key seclab/seclab)
+seclab_user=$(vault kv get -field=hades_user hades/hades)
+seclab_pw=$(vault kv get -field=hades_password hades/hades)
+seclab_ssh_key=$(vault kv get -field=hades_ssh_key hades/hades)
 encrypted_pw=$(openssl passwd -6 $seclab_pw)
 echo "[+] Moving example files to active files"
 for f in $(find ./ -name "user-data.example" -or -name "*.preseed.example"); do
