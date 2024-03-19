@@ -26,7 +26,11 @@ provider "vault" {
 
 }
 
+<<<<<<< HEAD
 data "vault_kv_secret_v2" "hades" {
+=======
+data "vault_kv_secret_v2" "seclab" {
+>>>>>>> 9bb1a2770249008e568783a5816555503be83d2e
   mount = "hades"
   name  = "hades"
 }
@@ -61,8 +65,13 @@ resource "proxmox_vm_qemu" "demo-ws" {
 
   connection {
     type            = "ssh"
+<<<<<<< HEAD
     user            = data.vault_kv_secret_v2.hades.data.hades_user
     password        = data.vault_kv_secret_v2.hades.data.hades_windows_password
+=======
+    user            = data.vault_kv_secret_v2.seclab.data.hades_user
+    password        = data.vault_kv_secret_v2.seclab.data.hades_windows_password
+>>>>>>> 9bb1a2770249008e568783a5816555503be83d2e
     host            = self.default_ipv4_address
     target_platform = "windows"
   }

@@ -30,8 +30,13 @@ source "proxmox-iso" "seclab-kali" {
   node                     = "${var.proxmox_node}"
   username                 = "${local.proxmox_api_id}"
   token                    = "${local.proxmox_api_token}"
+<<<<<<< HEAD
   iso_file                 = "local:iso/kali-linux-2024.1-installer-amd64.iso"
   iso_checksum             = "sha256:c150608cad5f8ec71608d0713d487a563d9b916a0199b1414b6ba09fce788ced"
+=======
+  iso_file                 = "local:iso/kali-linux-2023.4-installer-amd64.iso"
+  iso_checksum             = "sha256:0b0f5560c21bcc1ee2b1fef2d8e21dca99cc6efa938a47108bbba63bec499779"
+>>>>>>> 9bb1a2770249008e568783a5816555503be83d2e
   ssh_username             = "${local.username}"
   ssh_password             = "${local.password}"
   ssh_handshake_attempts   = 100
@@ -39,7 +44,11 @@ source "proxmox-iso" "seclab-kali" {
   http_directory           = "http"
   cores                    = 4
   memory                   = 8192
+<<<<<<< HEAD
   vm_name                  = "template-kali-2024.01"
+=======
+  vm_name                  = "template-kali"
+>>>>>>> 9bb1a2770249008e568783a5816555503be83d2e
   qemu_agent               = true
   template_description     = "Kali Linux release 2024.1"
   insecure_skip_tls_verify = true

@@ -26,7 +26,11 @@ provider "vault" {
 
 }
 
+<<<<<<< HEAD
 data "vault_kv_secret_v2" "hades" {
+=======
+data "vault_kv_secret_v2" "seclab" {
+>>>>>>> 9bb1a2770249008e568783a5816555503be83d2e
   mount = "hades"
   name  = "hades"
 }
@@ -41,20 +45,31 @@ provider "proxmox" {
 }
 
 
-resource "proxmox_vm_qemu" "seclab-kali" {
+resource "proxmox_vm_qemu" "hades-kali" {
   cores       = 4
   memory      = 8192
+<<<<<<< HEAD
   name        = "hades-kali-2024.01"
   target_node = var.proxmox_host
   clone       = "template-kali-2024.01"
+=======
+  name        = "hades-kali"
+  target_node = var.proxmox_host
+  clone       = "hades-kali"
+>>>>>>> 9bb1a2770249008e568783a5816555503be83d2e
   full_clone  = false
   onboot      = true
   agent       = 1
 
   connection {
     type     = "ssh"
+<<<<<<< HEAD
     user     = data.vault_kv_secret_v2.hades.data.hades_user
     password = data.vault_kv_secret_v2.hades.data.hades_password
+=======
+    user     = data.vault_kv_secret_v2.seclab.data.hades_user
+    password = data.vault_kv_secret_v2.seclab.data.hades_password
+>>>>>>> 9bb1a2770249008e568783a5816555503be83d2e
     host     = self.default_ipv4_address
   }
 
@@ -77,7 +92,7 @@ resource "proxmox_vm_qemu" "seclab-kali" {
 }
 
 output "vm_ip" {
-  value       = proxmox_vm_qemu.seclab-kali.default_ipv4_address
+  value       = proxmox_vm_qemu.hades-kali.default_ipv4_address
   sensitive   = false
   description = "VM IP"
 }
