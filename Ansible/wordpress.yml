@@ -1,6 +1,6 @@
 ---
 - name: Set up Wordpress
-  hosts: seclab-docker
+  hosts: hades-docker
   become: true
   roles:
     - docker

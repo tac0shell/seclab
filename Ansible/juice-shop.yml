@@ -1,6 +1,6 @@
 ---
 - name: Deploy OWASP Juice Shop
-  hosts: seclab-docker
+  hosts: hades-docker
   tasks:
     - name: Pull Juice Shop Image
       community.docker.docker_image:
