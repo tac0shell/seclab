@@ -1,35 +1,54 @@
 terraform {
   required_providers {
     proxmox = {
-      source  = "TheGameProfi/proxmox"
+      source  = "bpg/proxmox"
+      version = "0.68.0"
     }
     vault = {
       source  = "hashicorp/vault"
-      version = "3.16.0"
+      version = "4.5.0"
     }
   }
+}
+
+variable "proxmox_host" {
+  type        = string
+  default     = "proxmox"
+  description = "Proxmox node name"
+}
+
+variable "dc_template_id" {
+  type        = string
+  description = "Template ID for DC clone"
+}
+
+variable "fs_template_id" {
+  type        = string
+  description = "Template ID for Server clone"
+}
+
+variable "ws_template_id" {
+  type        = string
+  description = "Template ID for Workstation clones"
 }
 
 provider "vault" {
 
 }
 
-data "vault_kv_secret_v2" "seclab" {
+data "vault_kv_secret_v2" "hades" {
   mount = "hades"
   name  = "hades"
 }
 
-variable "proxmox_host" {
-  type        = string
-  default     = "riverstyx"
-  description = "proxmox node"
-}
-
 provider "proxmox" {
   # Configuration options
-  pm_api_url          = "https://${var.proxmox_host}:8006/api2/json"
-  pm_tls_insecure     = true
-  pm_log_enable       = true
-  pm_api_token_id     = data.vault_kv_secret_v2.seclab.data.proxmox_api_id
-  pm_api_token_secret = data.vault_kv_secret_v2.seclab.data.proxmox_api_token
+  endpoint  = "https://${var.proxmox_host}:8006/api2/json"
+  insecure  = true
+  api_token = "${data.vault_kv_secret_v2.hades.data.proxmox_api_id}=${data.vault_kv_secret_v2.hades.data.proxmox_api_token}"
+}
+
+resource "proxmox_virtual_environment_pool" "zeroday_pool" {
+  comment = "ZeroDay Pool"
+  pool_id = "ZeroDay"
 }

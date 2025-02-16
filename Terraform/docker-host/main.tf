@@ -1,11 +1,12 @@
 terraform {
   required_providers {
     proxmox = {
-      source  = "TheGameProfi/proxmox"
+      source  = "bpg/proxmox"
+      version = "0.68.0"
     }
     vault = {
       source  = "hashicorp/vault"
-      version = "3.16.0"
+      version = "4.5.0"
     }
   }
 }
@@ -22,50 +23,66 @@ variable "hostname" {
   description = "description"
 }
 
+variable "template_id" {
+  type        = string
+  description = "Template ID for clone"
+}
+
 provider "vault" {
 
 }
 
-data "vault_kv_secret_v2" "seclab" {
+data "vault_kv_secret_v2" "hades" {
   mount = "hades"
   name  = "hades"
 }
 
 provider "proxmox" {
   # Configuration options
-  pm_api_url          = "https://${var.proxmox_host}:8006/api2/json"
-  pm_tls_insecure     = true
-  pm_log_enable       = true
-  pm_api_token_id     = data.vault_kv_secret_v2.seclab.data.proxmox_api_id
-  pm_api_token_secret = data.vault_kv_secret_v2.seclab.data.proxmox_api_token
+  endpoint  = "https://${var.proxmox_host}:8006/api2/json"
+  insecure  = true
+  api_token = "${data.vault_kv_secret_v2.hades.data.proxmox_api_id}=${data.vault_kv_secret_v2.hades.data.proxmox_api_token}"
 }
 
 
-resource "proxmox_vm_qemu" "seclab-docker" {
-  cores       = 2
-  memory      = 4096
-  name        = "hades-docker"
-  target_node = var.proxmox_host
-  clone       = "template-ubuntu-22-04"
-  full_clone  = false
-  onboot      = true
-  agent       = 1
+resource "proxmox_virtual_environment_vm" "hades-docker" {
+  name      = "hades-docker"
+  node_name = var.proxmox_host
+  on_boot   = true
 
-  connection {
-    type     = "ssh"
-    user     = data.vault_kv_secret_v2.seclab.data.hades_user
-    password = data.vault_kv_secret_v2.seclab.data.hades_password
-    host     = self.default_ipv4_address
+  clone {
+    vm_id = var.template_id
+    full  = false
   }
 
-  network {
+  agent {
+    enabled = true
+  }
+
+  cpu {
+    cores = 2
+  }
+
+  memory {
+    dedicated = 4096
+  }
+
+  network_device {
     bridge = "vmbr1"
     model  = "e1000"
   }
-  network {
+  network_device {
     bridge = "vmbr2"
     model  = "e1000"
   }
+
+  connection {
+    type     = "ssh"
+    user     = data.vault_kv_secret_v2.hades.data.hades_user
+    password = data.vault_kv_secret_v2.hades.data.hades_password
+    host     = self.ipv4_addresses[1][0]
+  }
+
 
   provisioner "file" {
     source      = "./00-netplan.yaml"
@@ -74,12 +91,10 @@ resource "proxmox_vm_qemu" "seclab-docker" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo sed -i 's/hades-ubuntu-22-04/${var.hostname}/g' /etc/hosts",
-      "sudo sed -i 's/hades-ubuntu-22-04/${var.hostname}/g' /etc/hostname",
       "sudo mv /etc/netplan/00-installer-config.yaml /etc/netplan/00-installer-config.yaml.bak",
       "sudo mv /tmp/00-netplan.yaml /etc/netplan/00-netplan.yaml",
-      "sudo hostname ${var.hostname}",
-      "sudo netplan apply && sudo ip addr add dev ens18 ${self.default_ipv4_address}",
+      "sudo hostnamectl hostname ${var.hostname}",
+      "sudo netplan apply && sudo ip addr add dev ens18 ${self.ipv4_addresses[1][0]}",
       "ip a s"
     ]
   }
@@ -88,7 +103,7 @@ resource "proxmox_vm_qemu" "seclab-docker" {
 }
 
 output "vm_ip" {
-  value       = proxmox_vm_qemu.seclab-docker.default_ipv4_address
+  value       = proxmox_virtual_environment_vm.hades-docker.ipv4_addresses
   sensitive   = false
   description = "VM IP"
 }

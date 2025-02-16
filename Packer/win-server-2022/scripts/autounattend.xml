@@ -4,43 +4,43 @@
         <component name="Microsoft-Windows-PnpCustomizationsWinPE" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <DriverPaths>
                    <PathAndCredentials wcm:action="add" wcm:keyValue="2">
-                       <Path>F:\viostor\2k16\amd64</Path>
+                       <Path>D:\viostor\2k22\amd64</Path>
                    </PathAndCredentials>
    
                    <PathAndCredentials wcm:action="add" wcm:keyValue="3">
-                       <Path>F:\NetKVM\2k16\amd64</Path>
+                       <Path>D:\NetKVM\2k22\amd64</Path>
                    </PathAndCredentials>
    
                    <PathAndCredentials wcm:action="add" wcm:keyValue="4">
-                       <Path>F:\Balloon\2k16\amd64</Path>
+                       <Path>D:\Balloon\2k22\amd64</Path>
                    </PathAndCredentials>
    
                    <PathAndCredentials wcm:action="add" wcm:keyValue="5">
-                       <Path>F:\pvpanic\2k16\amd64</Path>
+                       <Path>D:\pvpanic\2k22\amd64</Path>
                    </PathAndCredentials>
    
                    <PathAndCredentials wcm:action="add" wcm:keyValue="6">
-                       <Path>F:\qemupciserial\2k16\amd64</Path>
+                       <Path>D:\qemupciserial\2k22\amd64</Path>
                    </PathAndCredentials>
    
                    <PathAndCredentials wcm:action="add" wcm:keyValue="7">
-                       <Path>F:\qxldod\2k16\amd64</Path>
+                       <Path>D:\qxldod\2k22\amd64</Path>
                    </PathAndCredentials>
    
                    <PathAndCredentials wcm:action="add" wcm:keyValue="8">
-                       <Path>F:\vioinput\2k16\amd64</Path>
+                       <Path>D:\vioinput\2k22\amd64</Path>
                    </PathAndCredentials>
    
                    <PathAndCredentials wcm:action="add" wcm:keyValue="9">
-                       <Path>F:\viorng\2k16\amd64</Path>
+                       <Path>D:\viorng\2k22\amd64</Path>
                    </PathAndCredentials>
    
                    <PathAndCredentials wcm:action="add" wcm:keyValue="10">
-                       <Path>F:\vioscsi\2k16\amd64</Path>
+                       <Path>D:\vioscsi\2k22\amd64</Path>
                    </PathAndCredentials>
    
                    <PathAndCredentials wcm:action="add" wcm:keyValue="11">
-                       <Path>F:\vioserial\2k16\amd64</Path>
+                       <Path>D:\vioserial\2k22\amd64</Path>
                </PathAndCredentials>
             </DriverPaths>
          </component>
@@ -55,49 +55,58 @@
         </component>
         <component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <DiskConfiguration>
-                <Disk wcm:action="add">
-                    <CreatePartitions>
-                        <CreatePartition wcm:action="add">
-                            <Order>1</Order>
-                            <Size>250</Size>
-                            <Type>Primary</Type>
-                        </CreatePartition>
-                        <CreatePartition wcm:action="add">
-                            <Order>2</Order>
-                            <Extend>true</Extend>
-                            <Type>Primary</Type>
-                        </CreatePartition>
-                    </CreatePartitions>
-                    <ModifyPartitions>
-                        <ModifyPartition wcm:action="add">
-                            <Order>1</Order>
-                            <PartitionID>1</PartitionID>
-                            <Format>NTFS</Format>
-                            <Label>Boot</Label>
-                            <Active>true</Active>
-                        </ModifyPartition>
-                        <ModifyPartition wcm:action="add">
-                            <Order>2</Order>
-                            <PartitionID>2</PartitionID>
-                            <Format>NTFS</Format>
-                            <Label>System</Label>
-                        </ModifyPartition>
-                    </ModifyPartitions>
-                    <DiskID>0</DiskID>
-                    <WillWipeDisk>true</WillWipeDisk>
-                </Disk>
+              <Disk wcm:action="add">
+                <CreatePartitions>
+                    <CreatePartition wcm:action="add">
+                        <Type>EFI</Type>
+                        <Size>512</Size>
+                        <Order>1</Order>
+                    </CreatePartition>
+                    <CreatePartition wcm:action="add">
+                        <Extend>false</Extend>
+                        <Type>MSR</Type>
+                        <Order>2</Order>
+                        <Size>128</Size>
+                    </CreatePartition>
+                    <CreatePartition wcm:action="add">
+                        <Order>3</Order>
+                        <Type>Primary</Type>
+                        <Extend>true</Extend>
+                    </CreatePartition>
+                </CreatePartitions>
+                <ModifyPartitions>
+                    <ModifyPartition wcm:action="add">
+                        <Format>FAT32</Format>
+                        <Order>1</Order>
+                        <PartitionID>1</PartitionID>
+                    </ModifyPartition>
+                    <ModifyPartition wcm:action="add">
+                        <Order>2</Order>
+                        <PartitionID>2</PartitionID>
+                    </ModifyPartition>
+                    <ModifyPartition wcm:action="add">
+                        <Format>NTFS</Format>
+                        <Label>Windows</Label>
+                        <Order>3</Order>
+                        <PartitionID>3</PartitionID>
+                    </ModifyPartition>
+                </ModifyPartitions>
+                <DiskID>0</DiskID>
+                <WillWipeDisk>true</WillWipeDisk>
+              </Disk>
+              <WillShowUI>OnError</WillShowUI>
             </DiskConfiguration>
             <ImageInstall>
                 <OSImage>
                     <InstallFrom>
                         <MetaData wcm:action="add">
                             <Key>/IMAGE/NAME</Key>
-                            <Value>Windows Server 2019 SERVERSTANDARD</Value>
+                            <Value>Windows Server 2022 SERVERSTANDARD</Value>
                         </MetaData>
                     </InstallFrom>
                     <InstallTo>
                         <DiskID>0</DiskID>
-                        <PartitionID>2</PartitionID>
+                        <PartitionID>3</PartitionID>
                     </InstallTo>
                     <WillShowUI>OnError</WillShowUI>
                     <InstallToAvailablePartition>false</InstallToAvailablePartition>
@@ -163,25 +172,25 @@
                 <SynchronousCommand wcm:action="add">
                     <Order>3</Order>
                     <!-- Enable SSH service -->
+                    <CommandLine>powershell.exe -c Start-Service sshd</CommandLine>
+                    <RequiresUserInput>false</RequiresUserInput>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <Order>4</Order>
+                    <!-- Enable SSH service -->
                     <CommandLine>powershell.exe -c Set-Service -Name sshd -StartupType 'Automatic'</CommandLine>
                     <RequiresUserInput>false</RequiresUserInput>
                 </SynchronousCommand>
                 <SynchronousCommand wcm:action="add">
                     <CommandLine>cmd.exe /c wmic useraccount where "name='SECLAB_USER'" set PasswordExpires=FALSE</CommandLine>
-                    <Order>4</Order>
+                    <Order>5</Order>
                     <Description>Disable password expiration for seclab user</Description>
                 </SynchronousCommand>
                 <SynchronousCommand wcm:action="add">
                     <!-- Install QEMU Agent -->
-                    <CommandLine>msiexec /q /i F:\guest-agent\qemu-ga-x86_64.msi</CommandLine>
-                    <Order>5</Order>
-                    <Description>Install QEMU Agent</Description>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
+                    <CommandLine>msiexec /q /i D:\guest-agent\qemu-ga-x86_64.msi</CommandLine>
                     <Order>6</Order>
-                    <!-- Enable SSH service -->
-                    <CommandLine>powershell.exe -c Start-Service sshd</CommandLine>
-                    <RequiresUserInput>false</RequiresUserInput>
+                    <Description>Install QEMU Agent</Description>
                 </SynchronousCommand>
             </FirstLogonCommands>
             <OOBE>
@@ -195,7 +204,7 @@
             </OOBE>
             <UserAccounts>
                 <AdministratorPassword>
-                    <Value>SECLAB_WINDOWS_DOMAIN_PASSWORD</Value>
+                    <Value>SECLAB_WINDOWS_ADMIN_PASSWORD</Value>
                     <PlainText>false</PlainText>
                 </AdministratorPassword>
                 <LocalAccounts>

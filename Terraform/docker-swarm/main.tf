@@ -1,11 +1,12 @@
 terraform {
   required_providers {
     proxmox = {
-      source  = "TheGameProfi/proxmox"
+      source  = "bpg/proxmox"
+      version = "0.68.0"
     }
     vault = {
       source  = "hashicorp/vault"
-      version = "3.16.0"
+      version = "4.5.0"
     }
   }
 }
@@ -16,113 +17,134 @@ variable "proxmox_host" {
   description = "description"
 }
 
-variable "hostname" {
+variable "manager_hostname" {
   type        = string
-  default     = "hades-docker-swarm-main"
-  description = "description"
+  default     = "swarm-manager"
+  description = "hostname"
+}
+
+variable "worker_hostname" {
+  type        = string
+  default     = "swarm-worker"
+  description = "hostname"
+}
+
+variable "template_id" {
+  type        = string
+  description = "Template ID for clone"
 }
 
 provider "vault" {
 
 }
 
-data "vault_kv_secret_v2" "seclab" {
+data "vault_kv_secret_v2" "hades" {
   mount = "hades"
   name  = "hades"
 }
 
 provider "proxmox" {
   # Configuration options
-  pm_api_url          = "https://${var.proxmox_host}:8006/api2/json"
-  pm_tls_insecure     = true
-  pm_log_enable       = true
-  pm_api_token_id     = data.vault_kv_secret_v2.seclab.data.proxmox_api_id
-  pm_api_token_secret = data.vault_kv_secret_v2.seclab.data.proxmox_api_token
+  endpoint  = "https://${var.proxmox_host}:8006/api2/json"
+  insecure  = true
+  api_token = "${data.vault_kv_secret_v2.hades.data.proxmox_api_id}=${data.vault_kv_secret_v2.hades.data.proxmox_api_token}"
 }
 
+resource "proxmox_virtual_environment_vm" "swarm-manager" {
+  name      = "swarm-manager"
+  node_name = var.proxmox_host
+  on_boot   = true
 
-resource "proxmox_vm_qemu" "seclab-docker-swarm-main" {
-  cores       = 2
-  memory      = 4096
-  name        = "docker-main"
-  target_node = var.proxmox_host
-  clone       = "template-ubuntu-22-04"
-  full_clone  = false
-  onboot      = true
-  agent       = 1
-
-  connection {
-    type     = "ssh"
-    user     = data.vault_kv_secret_v2.seclab.data.hades_user
-    password = data.vault_kv_secret_v2.seclab.data.hades_password
-    host     = self.default_ipv4_address
+  clone {
+    vm_id = var.template_id
+    full  = false
   }
 
-  network {
+  agent {
+    enabled = true
+  }
+
+  cpu {
+    cores = 2
+  }
+
+  memory {
+    dedicated = 4096
+  }
+
+  network_device {
     bridge = "vmbr1"
     model  = "e1000"
   }
 
+  connection {
+    type     = "ssh"
+    user     = data.vault_kv_secret_v2.hades.data.hades_user
+    password = data.vault_kv_secret_v2.hades.data.hades_password
+    host     = self.ipv4_addresses[1][0]
+  }
+
+
   provisioner "remote-exec" {
     inline = [
-      "sudo sed -i 's/hades-ubuntu-22-04/hades-docker-swarm-main/g' /etc/hosts",
-      "sudo sed -i 's/hades-ubuntu-22-04/hades-docker-swarm-main/g' /etc/hostname",
-      "sudo hostname hades-docker-swarm-main",
+      "sudo hostnamectl hostname ${var.manager_hostname}",
+      "sudo netplan apply && sudo ip addr add dev ens18 ${self.ipv4_addresses[1][0]}",
       "ip a s"
     ]
   }
-
-
 }
 
-resource "proxmox_vm_qemu" "seclab-docker-swarm-node" {
-  cores       = 2
-  memory      = 4096
-  name        = "Docker-Node"
-  target_node = var.proxmox_host
-  clone       = "template-ubuntu-22-04"
-  full_clone  = false
-  onboot      = true
-  agent       = 1
+resource "proxmox_virtual_environment_vm" "swarm-worker" {
+  name      = "swarm-worker"
+  node_name = var.proxmox_host
+  on_boot   = true
 
-  connection {
-    type     = "ssh"
-    user     = data.vault_kv_secret_v2.seclab.data.hades_user
-    password = data.vault_kv_secret_v2.seclab.data.hades_password
-    host     = self.default_ipv4_address
+  clone {
+    vm_id = var.template_id
+    full  = false
   }
 
-  disk {
-    type    = "virtio"
-    size    = "50G"
-    storage = "local-lvm"
+  agent {
+    enabled = true
   }
 
-  network {
+  cpu {
+    cores = 2
+  }
+
+  memory {
+    dedicated = 4096
+  }
+
+  network_device {
     bridge = "vmbr1"
     model  = "e1000"
   }
 
+  connection {
+    type     = "ssh"
+    user     = data.vault_kv_secret_v2.hades.data.hades_user
+    password = data.vault_kv_secret_v2.hades.data.hades_password
+    host     = self.ipv4_addresses[1][0]
+  }
+
   provisioner "remote-exec" {
     inline = [
-      "sudo sed -i 's/hades-ubuntu-22-04/hades-docker-swarm-node/g' /etc/hosts",
-      "sudo sed -i 's/hades-ubuntu-22-04/hades-docker-swarm-node/g' /etc/hostname",
-      "sudo hostname hades-docker-swarm-node",
+      "sudo hostnamectl hostname ${var.worker_hostname}",
+      "sudo netplan apply && sudo ip addr add dev ens18 ${self.ipv4_addresses[1][0]}",
       "ip a s"
     ]
   }
-
-
 }
 
-output "docker-main-ip" {
-  value       = proxmox_vm_qemu.seclab-docker-swarm-main.default_ipv4_address
+output "swarm_manager_ip" {
+  value       = proxmox_virtual_environment_vm.swarm-manager.ipv4_addresses
   sensitive   = false
-  description = "Docker Main IP"
+  description = "Swarm Manager IP"
 }
 
-output "docker-node-ip" {
-  value       = proxmox_vm_qemu.seclab-docker-swarm-node.default_ipv4_address
+output "swarm_worker_ip" {
+  value       = proxmox_virtual_environment_vm.swarm-worker.ipv4_addresses
   sensitive   = false
-  description = "Docker Node IP"
+  description = "Swarm Worker IP"
 }

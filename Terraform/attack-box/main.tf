@@ -1,11 +1,12 @@
 terraform {
   required_providers {
     proxmox = {
-      source  = "TheGameProfi/proxmox"
+      source  = "bpg/proxmox"
+      version = "0.68.0"
     }
     vault = {
       source  = "hashicorp/vault"
-      version = "3.16.0"
+      version = "4.5.0"
     }
   }
 }
@@ -13,7 +14,7 @@ terraform {
 variable "proxmox_host" {
   type        = string
   default     = "riverstyx"
-  description = "description"
+  description = "riverstyx"
 }
 
 variable "hostname" {
@@ -22,65 +23,62 @@ variable "hostname" {
   description = "description"
 }
 
+variable "template_id" {
+  type        = string
+  description = "Template ID for clone"
+}
+
 provider "vault" {
 
 }
 
-<<<<<<< HEAD
 data "vault_kv_secret_v2" "hades" {
-=======
-data "vault_kv_secret_v2" "seclab" {
->>>>>>> 9bb1a2770249008e568783a5816555503be83d2e
   mount = "hades"
   name  = "hades"
 }
 
 provider "proxmox" {
   # Configuration options
-  pm_api_url          = "https://${var.proxmox_host}:8006/api2/json"
-  pm_tls_insecure     = true
-  pm_log_enable       = true
-  pm_api_token_id     = data.vault_kv_secret_v2.hades.data.proxmox_api_id
-  pm_api_token_secret = data.vault_kv_secret_v2.hades.data.proxmox_api_token
+  endpoint  = "https://${var.proxmox_host}:8006/api2/json"
+  insecure  = true
+  api_token = "${data.vault_kv_secret_v2.hades.data.proxmox_api_id}=${data.vault_kv_secret_v2.hades.data.proxmox_api_token}"
 }
 
 
-resource "proxmox_vm_qemu" "hades-kali" {
-  cores       = 4
-  memory      = 8192
-<<<<<<< HEAD
-  name        = "hades-kali-2024.01"
-  target_node = var.proxmox_host
-  clone       = "template-kali-2024.01"
-=======
-  name        = "hades-kali"
-  target_node = var.proxmox_host
-  clone       = "hades-kali"
->>>>>>> 9bb1a2770249008e568783a5816555503be83d2e
-  full_clone  = false
-  onboot      = true
-  agent       = 1
+resource "proxmox_virtual_environment_vm" "hades-kali" {
+  name      = "hades-kali-2024.01"
+  node_name = var.proxmox_host
+  on_boot   = true
 
-  connection {
-    type     = "ssh"
-<<<<<<< HEAD
-    user     = data.vault_kv_secret_v2.hades.data.hades_user
-    password = data.vault_kv_secret_v2.hades.data.hades_password
-=======
-    user     = data.vault_kv_secret_v2.seclab.data.hades_user
-    password = data.vault_kv_secret_v2.seclab.data.hades_password
->>>>>>> 9bb1a2770249008e568783a5816555503be83d2e
-    host     = self.default_ipv4_address
+  clone {
+    vm_id = var.template_id
+    full  = false
   }
 
-  network {
-    bridge = "vmbr1"
-    model  = "e1000"
+  agent {
+    enabled = true
   }
-  network {
+
+  cpu {
+    cores = 4
+  }
+
+  memory {
+    dedicated = 8192
+  }
+
+  network_device {
     bridge = "vmbr2"
     model  = "e1000"
   }
+
+  connection {
+    type     = "ssh"
+    user     = data.vault_kv_secret_v2.hades.data.hades_user
+    password = data.vault_kv_secret_v2.hades.data.hades_password
+    host     = self.ipv4_addresses[1][0]
+  }
+
 
   provisioner "remote-exec" {
     inline = [
@@ -92,7 +90,7 @@ resource "proxmox_vm_qemu" "hades-kali" {
 }
 
 output "vm_ip" {
-  value       = proxmox_vm_qemu.hades-kali.default_ipv4_address
+  value       = proxmox_virtual_environment_vm.hades-kali.ipv4_addresses
   sensitive   = false
   description = "VM IP"
 }

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VSCODE_URL='https://update.code.visualstudio.com/latest/linux-deb-x64/stable'
-VIVALDI_URL='https://downloads.vivaldi.com/stable/vivaldi-stable_6.2.3105.43-1_amd64.deb'
+VIVALDI_URL='https://downloads.vivaldi.com/stable/vivaldi-stable_6.6.3271.48-1_amd64.deb'
 
 install_tools() {
 	echo "[+] Installing baseline tools"
@@ -30,7 +30,7 @@ install_vivaldi() {
 
 install_hashicorp() {
 	echo "[+] Setting up Hashicorp Repository"
-	wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
+	wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg >/dev/null
 	echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 	sudo apt update
 	echo "[+] Installing Hashicorp Tools"
@@ -46,6 +46,16 @@ install_ansible() {
 	ansible-galaxy collection install community.docker community.hashi_vault community.windows community.general microsoft.ad
 }
 
+install_nerdfont() {
+	echo "[+] Installing NerdFont"
+	wget -O /tmp/scp.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/SourceCodePro.zip
+	unzip /tmp/scp.zip -d /tmp/scp '*.ttf'
+	sudo mkdir /usr/share/fonts/saucecode-pro
+	sudo mv /tmp/scp/*.ttf /usr/share/fonts/saucecode-pro
+	rm -rf /tmp/scp
+	sudo fc-cache -s -f
+}
+
 install_fish() {
 	printf "[?] Do you want to configure fish as your default shell [Y/n]? "
 	read fish_confirm
@@ -53,15 +63,20 @@ install_fish() {
 		echo "[!] This is going to kick you into a fish shell. Type 'exit' to close it and continue installation. The final step will mess up this terminal session. Once it's finished, close it and open a new one."
 		echo "[!] To enter Fish automatically, log out and back in."
 		chsh -s /usr/bin/fish
-		echo "[+] Installing Powerline fonts"
-		git clone https://github.com/powerline/fonts /tmp/fonts
-		chmod +x /tmp/fonts/install.sh
-		/tmp/fonts/install.sh
+		insall_nerdfont
 		echo "[+] Configuring Terminator"
 		cp ./terminatorconfig ~/.config/terminator/config
 		echo "[+] Configuring Fish"
-		curl -kL https://get.oh-my.fish | fish
-		fish -c "omf install bobthefish && exit"
+		# Starship
+		curl -sS https://starship.rs/install.sh | sh
+		mkdir ~/.config/fish
+		echo "starship init fish | source" >~/.config/fish/config.fish
+		cp ./fish_variables/.config/fish
+		echo "[+] Configuring Starship"
+		cp ./starship.toml ~/.config/starship.toml
+		# OMF
+		# curl -kL https://get.oh-my.fish | fish
+		# fish -c "omf install bobthefish && exit"
 	fi
 }
 
@@ -72,7 +87,7 @@ initialize_vault() {
 	echo "[+] Creating Vault Systemd Service"
 	sudo cp /etc/vault.d/vault.hcl /etc/vault.d/vault.hcl.bak
 	sudo cp vault.hcl /etc/vault.d/vault.hcl
-	sudo cp vault.service /etc/systemd/system/vault.service
+	# sudo cp vault.service /etc/systemd/system/vault.service
 	echo "[+] Enabling Vault Systemd Service"
 	sudo systemctl enable vault.service
 	echo "[+] Starting Vault Systemd Service"
@@ -172,7 +187,8 @@ create_creds() {
 		create_creds
 	fi
 	echo "[+] Setting Vault data"
-	vault kv put -mount=seclab seclab proxmox_api_id=$proxmox_api_id proxmox_api_token=$proxmox_api_token seclab_user=$seclab_user seclab_password=$seclab_password seclab_windows_password=$seclab_windows_password seclab_windows_domain_password=$seclab_windows_domain_password seclab_ssh_key="$(cat ~/.ssh/id_rsa.pub)"
+ 	USER_HOME_DIR=$(getent passwd "$USER" | cut -d: -f6)
+	vault kv put -mount=seclab seclab proxmox_api_id=$proxmox_api_id proxmox_api_token=$proxmox_api_token seclab_user=$seclab_user seclab_password=$seclab_password seclab_windows_password=$seclab_windows_password seclab_windows_domain_password=$seclab_windows_domain_password seclab_ssh_key=@$USER_HOME_DIR/.ssh/id_rsa.pub
 }
 
 append_rcs() {
